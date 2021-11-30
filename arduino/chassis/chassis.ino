@@ -64,11 +64,9 @@ bool cmd_keep = true;  //是否保持末次指令一直执行
 void execute(long cmd) {
     if (cmd == INFRARED_TEST) {  //遥控器按下了TEST键，不保持末次指令
         cmd_keep = false;
-    } else if (cmd ==
-               INFRARED_RETURN) {  //遥控器按下了返回键，保持末次指令一直执行
+    } else if (cmd == INFRARED_RETURN) {  //遥控器按下了返回键，保持末次指令一直执行
         cmd_keep = true;
-    } else if (cmd == INFRARED_PLAY ||
-               cmd == INFRARED_UP) {  //遥控器按下了PLAY/UP键，前进
+    } else if (cmd == INFRARED_PLAY || cmd == INFRARED_UP) {  //遥控器按下了PLAY/UP键，前进
         digitalWrite(ledPin, HIGH);
         // forward 向前转
         digitalWrite(rightMotor, HIGH);  //给高电平
