@@ -9,12 +9,12 @@
 
 */
 #include <IRremote.h>  //包含红外库
-#include <geometry_msgs/Twist.h>
-#include <nav_msgs/Odometry.h>
 #include <ros.h>  //包含ros库
 #include <ros/time.h>
 #include <std_msgs/Float64.h>
 #include <std_msgs/String.h>  //包含ros msg类型库
+#include <geometry_msgs/Twist.h>
+#include <nav_msgs/Odometry.h>
 #include <tf/transform_broadcaster.h>
 
 int infraredPin = 3;                //红外线接收器端口
@@ -53,8 +53,7 @@ int linear = 0;            // 15; //线速度：cm/second
 int angular = 0;           // 1; //角速度：ros的angular.z
 void control(const geometry_msgs::Twist& cmd) {
     angular = cmd.angular.z;  //角速度：=0直行；>0左转；<0右转
-    linear = cmd.linear.x *
-             100;  //线速度：ROS中的单位是m/s，这里换算成cm单位；>0前进，<0后退
+    linear = cmd.linear.x * 100;  //线速度：ROS中的单位是m/s，这里换算成cm单位；>0前进，<0后退
 
     // execute(long(cmd.data));  //执行指令
 }
