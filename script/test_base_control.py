@@ -29,7 +29,7 @@ class BaseControl:
         self.baudrate = int(rospy.get_param('~baudrate', '57600'))
         self.odom_freq = int(rospy.get_param('~odom_freq', '50'))
         self.odom_topic = rospy.get_param('~odom_topic', '/odom')
-        self.cmd_freq = float(rospy.get_param('~cmd_freq', '50'))
+        self.cmd_freq = float(rospy.get_param('~cmd_freq', '1'))
         self.cmd_vel_topic = rospy.get_param('~cmd_vel_topic', '/cmd_vel')
 
         # define param
@@ -87,8 +87,8 @@ class BaseControl:
 
     def pubCmd(self, event):
         msg = Twist()
-        msg.linear.x = 0.01928486814345191 #-0.133198200144
-        msg.angular.z = -0.226007277507
+        msg.linear.x = 0.155857156127   #0.01928486814345191 #-0.133198200144
+        msg.angular.z = -0.128752999067    #-0.226007277507
         self.cmd_pub.publish(msg)
         rospy.loginfo("pub /cmd_vel data:" + str(msg))
 
