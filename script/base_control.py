@@ -189,7 +189,7 @@ class BaseControl:
         
         self.tf_broadcaster = tf.TransformBroadcaster()
         # test rospy sub
-        #self.sub = rospy.Subscriber("/tank/data", String, self.subTankData, queue_size=10)
+        self.sub = rospy.Subscriber("/debug", String, self.subDebug, queue_size=10)
         # 监听move_base发布给底盘的移动命令，并发送给底盘串口执行
         self.sub = rospy.Subscriber(self.cmd_vel_topic, Twist, self.subCmd, queue_size=20)
         # 定频发布里程计数据
@@ -229,8 +229,8 @@ class BaseControl:
         """
 
     # test sub data
-    def subTankData(self, data):
-        rospy.loginfo("sub /tank/data data: " + str(data))
+    def subDebug(self, data):
+        rospy.loginfo("sub /debug " + str(data))
 
     # 底盘数据监听（裸串口方式）
     def subSerial(self, event):

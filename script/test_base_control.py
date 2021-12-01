@@ -45,7 +45,6 @@ class BaseControl:
         # 末次指令时间
         self.last_cmd_vel_time = rospy.Time.now()
 
-        """
         # 连接底盘serial串口 Serial Communication
         try:
             self.serial = serial.Serial(self.device_port, self.baudrate, timeout=10)
@@ -65,12 +64,13 @@ class BaseControl:
         # 底盘数据监听（裸串口方式）
         #self.timer_communication = rospy.Timer(rospy.Duration(1.0/500), self.subSerialCommunication)
         #self.timer_communication = rospy.Timer(rospy.Duration(1.0/500), self.subSerial)
-        """
+        
 
         
         #self.tf_broadcaster = tf.TransformBroadcaster()
         # test rospy sub
-        #self.sub = rospy.Subscriber("/tank/data", String, self.subTankData, queue_size=10)
+        #self.sub = rospy.Subscriber("/tank/data", String, self.subDebug, queue_size=10)
+        self.sub = rospy.Subscriber("/debug", String, self.subDebug, queue_size=10)
         # 监听move_base发布给底盘的移动命令，并发送给底盘串口执行
         #self.sub = rospy.Subscriber(self.cmd_vel_topic, Twist, self.subCmd, queue_size=20)
         # 定频发布/cmd_vel数据
@@ -93,8 +93,8 @@ class BaseControl:
         rospy.loginfo("pub /cmd_vel data:" + str(msg))
 
     # test sub data
-    def subTankData(self, data):
-        rospy.loginfo("sub /tank/data data: " + str(data))
+    def subDebug(self, data):
+        rospy.loginfo("sub /debug " + str(data))
 
     # 底盘数据监听（裸串口方式）
     def subSerial(self, event):
