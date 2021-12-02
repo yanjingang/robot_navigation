@@ -237,7 +237,21 @@ class BaseControl:
     # test sub data
     def subDebug(self, data):
         self.debug = data.data
-        rospy.loginfo("sub /debug data:" + str(self.debug))
+        rospy.loginfo("sub /debug data: " + str(self.debug))
+        self.Vx = 0
+        self.Vy = 0
+        self.Vyaw = 0
+        self.Yawz = 0
+        if self.debug[0] == 'f':
+            self.Vx = 10    #10cm
+        elif self.debug[0] == 'b':
+            self.Vx = -10
+        elif self.debug[0] == 'l':
+            self.Vx = 5
+            self.Vy = 0
+        elif self.debug[0] == 'l':
+            self.Vx = 5
+            self.Vy = 0
 
     # 底盘数据监听（裸串口方式）
     def subSerial(self, event):
@@ -315,7 +329,7 @@ class BaseControl:
         
         # test
         self.current_time = rospy.Time.now()
-        if self.amcl_pose is not None:
+        """if self.amcl_pose is not None:
             self.pose_x = Vx = self.amcl_pose.pose.pose.position.x
             self.pose_y = Vy = self.amcl_pose.pose.pose.position.y
             Vyaw = self.amcl_pose.pose.pose.position.z
@@ -325,21 +339,22 @@ class BaseControl:
                             self.amcl_pose.pose.pose.orientation.z,
                             self.amcl_pose.pose.pose.orientation.w
                         ]
-        else:
-            # calculate odom data
-            Vx = float(ctypes.c_int16(self.Vx).value/1000.0)
-            Vy = float(ctypes.c_int16(self.Vy).value/1000.0)
-            Vyaw = float(ctypes.c_int16(self.Vyaw).value/1000.0)
+        else:"""
+        # calculate odom data
+        Vx = float(ctypes.c_int16(self.Vx).value/1000.0)
+        Vy = float(ctypes.c_int16(self.Vy).value/1000.0)
+        Vyaw = float(ctypes.c_int16(self.Vyaw).value/1000.0)
 
-            self.pose_yaw = float(ctypes.c_int16(self.Yawz).value/100.0)
-            self.pose_yaw = self.pose_yaw*math.pi/180.0
+        self.pose_yaw = float(ctypes.c_int16(self.Yawz).value/100.0)
+        self.pose_yaw = self.pose_yaw*math.pi/180.0
 
-            dt = (self.current_time - self.previous_time).to_sec()
-            self.previous_time = self.current_time
-            self.pose_x = self.pose_x + Vx * (math.cos(self.pose_yaw))*dt - Vy * (math.sin(self.pose_yaw))*dt
-            self.pose_y = self.pose_y + Vx * (math.sin(self.pose_yaw))*dt + Vy * (math.cos(self.pose_yaw))*dt
+        self.current_time = rospy.Time.now()
+        dt = (self.current_time - self.previous_time).to_sec()
+        self.previous_time = self.current_time
+        self.pose_x = self.pose_x + Vx * (math.cos(self.pose_yaw))*dt - Vy * (math.sin(self.pose_yaw))*dt
+        self.pose_y = self.pose_y + Vx * (math.sin(self.pose_yaw))*dt + Vy * (math.cos(self.pose_yaw))*dt
 
-            pose_quat = tf.transformations.quaternion_from_euler(0, 0, self.pose_yaw)
+        pose_quat = tf.transformations.quaternion_from_euler(0, 0, self.pose_yaw)
         
 
         # pub
