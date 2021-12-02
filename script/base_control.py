@@ -245,15 +245,13 @@ class BaseControl:
         if self.debug == '':
             return
         elif self.debug[0] == 'f':
-            self.Vx = 10    #10cm
+            self.Vx = 12        #收到一次f代表底盘前进了12cm
         elif self.debug[0] == 'b':
-            self.Vx = -10
+            self.Vx = -12
         elif self.debug[0] == 'l':
-            self.Vx = 5
-            self.Vy = 0
-        elif self.debug[0] == 'l':
-            self.Vx = 5
-            self.Vy = 0
+            self.Vyaw = -90     #收到一次l代表底盘左转了90度
+        elif self.debug[0] == 'r':
+            self.Vyaw = 90
 
     # 底盘数据监听（裸串口方式）
     def subSerial(self, event):
