@@ -252,7 +252,8 @@ class BaseControl:
 
     # 监听amcl的预估位姿数据
     def subAmclPose(self, data):
-        self.amcl_pose = data.pose
+        self.amcl_pose = data
+        rospy.loginfo("sub amcl_pose data:" + str(data))
     
     # 监听move_base发布给底盘的vel_cmd移动命令，并发送给底盘串口(也可以底盘直接监听vel_cmd topic)  Subscribe vel_cmd call this to send vel cmd to move base
     def subCmd(self, data):
@@ -260,7 +261,7 @@ class BaseControl:
         self.trans_y = data.linear.y
         self.rotat_z = data.angular.z
         self.last_cmd_vel_time = rospy.Time.now()
-        rospy.loginfo("get cmd data:" + str(data))
+        rospy.loginfo("sub cmd data:" + str(data))
         """
         output = chr(0x5a) + chr(12) + chr(0x01) + chr(0x01) + \
             chr((int(self.trans_x*1000.0) >> 8) & 0xff) + chr(int(self.trans_x*1000.0) & 0xff) + \
@@ -316,10 +317,10 @@ class BaseControl:
             self.pose_y =Vy = self.amcl_pose.pose.pose.position.y
             Vyaw = self.amcl_pose.pose.pose.position.z
             pose_quat = [
-                            self.amcl_pose.msg.pose.pose.orientation.x,
-                            self.amcl_pose.msg.pose.pose.orientation.y,
-                            self.amcl_pose.msg.pose.pose.orientation.z,
-                            self.amcl_pose.msg.pose.pose.orientation.w
+                            self.amcl_pose.pose.pose.orientation.x,
+                            self.amcl_pose.pose.pose.orientation.y,
+                            self.amcl_pose.pose.pose.orientation.z,
+                            self.amcl_pose.pose.pose.orientation.w
                         ]
         else:
             # calculate odom data
