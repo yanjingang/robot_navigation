@@ -134,6 +134,7 @@ class BaseControl:
         self.Circleloop = queue(capacity=1024*4)
         # test amcl pose
         self.amcl_pose = None
+        self.debug =""
         # 定位信息
         self.Vx = 0
         self.Vy = 0
@@ -235,7 +236,8 @@ class BaseControl:
 
     # test sub data
     def subDebug(self, data):
-        rospy.loginfo("sub /debug " + str(data))
+        self.debug = data.data
+        rospy.loginfo("sub /debug data:" + str(self.debug))
 
     # 底盘数据监听（裸串口方式）
     def subSerial(self, event):
@@ -315,7 +317,7 @@ class BaseControl:
         self.current_time = rospy.Time.now()
         if self.amcl_pose is not None:
             self.pose_x = Vx = self.amcl_pose.pose.pose.position.x
-            self.pose_y =Vy = self.amcl_pose.pose.pose.position.y
+            self.pose_y = Vy = self.amcl_pose.pose.pose.position.y
             Vyaw = self.amcl_pose.pose.pose.position.z
             pose_quat = [
                             self.amcl_pose.pose.pose.orientation.x,
