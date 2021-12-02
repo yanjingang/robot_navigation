@@ -132,6 +132,8 @@ class BaseControl:
         self.BatteryTimeCounter = 0
         # 底盘裸串口通信的数据积累队列（串口数据需要拼接）
         self.Circleloop = queue(capacity=1024*4)
+        # test amcl pose
+        self.amcl_pose = None
         # 定位信息
         self.Vx = 0
         self.Vy = 0
@@ -306,33 +308,36 @@ class BaseControl:
         except:
             rospy.logerr("Odom Command Send Faild! output: " + output)
         self.serialIDLE_flag = 0
-        
-        # calculate odom data
-        Vx = float(ctypes.c_int16(self.Vx).value/1000.0)
-        Vy = float(ctypes.c_int16(self.Vy).value/1000.0)
-        Vyaw = float(ctypes.c_int16(self.Vyaw).value/1000.0)
-
-        self.pose_yaw = float(ctypes.c_int16(self.Yawz).value/100.0)
-        self.pose_yaw = self.pose_yaw*math.pi/180.0
-
-        self.current_time = rospy.Time.now()
-        dt = (self.current_time - self.previous_time).to_sec()
-        self.previous_time = self.current_time
-        self.pose_x = self.pose_x + Vx * (math.cos(self.pose_yaw))*dt - Vy * (math.sin(self.pose_yaw))*dt
-        self.pose_y = self.pose_y + Vx * (math.sin(self.pose_yaw))*dt + Vy * (math.cos(self.pose_yaw))*dt
-
-        pose_quat = tf.transformations.quaternion_from_euler(0, 0, self.pose_yaw)
         """
+        
         # test
-        self.pose_x = Vx = self.amcl_pose.pose.pose.position.x
-        self.pose_y =Vy = self.amcl_pose.pose.pose.position.y
-        Vyaw = self.amcl_pose.pose.pose.position.z
-        pose_quat = [
-                        self.amcl_pose.msg.pose.pose.orientation.x,
-                        self.amcl_pose.msg.pose.pose.orientation.y,
-                        self.amcl_pose.msg.pose.pose.orientation.z,
-                        self.amcl_pose.msg.pose.pose.orientation.w
-                    ]
+        if self.amcl_pose is not None:
+            self.pose_x = Vx = self.amcl_pose.pose.pose.position.x
+            self.pose_y =Vy = self.amcl_pose.pose.pose.position.y
+            Vyaw = self.amcl_pose.pose.pose.position.z
+            pose_quat = [
+                            self.amcl_pose.msg.pose.pose.orientation.x,
+                            self.amcl_pose.msg.pose.pose.orientation.y,
+                            self.amcl_pose.msg.pose.pose.orientation.z,
+                            self.amcl_pose.msg.pose.pose.orientation.w
+                        ]
+        else:
+            # calculate odom data
+            Vx = float(ctypes.c_int16(self.Vx).value/1000.0)
+            Vy = float(ctypes.c_int16(self.Vy).value/1000.0)
+            Vyaw = float(ctypes.c_int16(self.Vyaw).value/1000.0)
+
+            self.pose_yaw = float(ctypes.c_int16(self.Yawz).value/100.0)
+            self.pose_yaw = self.pose_yaw*math.pi/180.0
+
+            self.current_time = rospy.Time.now()
+            dt = (self.current_time - self.previous_time).to_sec()
+            self.previous_time = self.current_time
+            self.pose_x = self.pose_x + Vx * (math.cos(self.pose_yaw))*dt - Vy * (math.sin(self.pose_yaw))*dt
+            self.pose_y = self.pose_y + Vx * (math.sin(self.pose_yaw))*dt + Vy * (math.cos(self.pose_yaw))*dt
+
+            pose_quat = tf.transformations.quaternion_from_euler(0, 0, self.pose_yaw)
+        
 
         # pub
         msg = Odometry()
