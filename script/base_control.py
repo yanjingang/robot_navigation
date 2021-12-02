@@ -242,7 +242,9 @@ class BaseControl:
         self.Vy = 0
         self.Vyaw = 0
         self.Yawz = 0
-        if self.debug[0] == 'f':
+        if self.debug == '':
+            return
+        elif self.debug[0] == 'f':
             self.Vx = 10    #10cm
         elif self.debug[0] == 'b':
             self.Vx = -10
