@@ -312,6 +312,7 @@ class BaseControl:
         """
         
         # test
+        self.current_time = rospy.Time.now()
         if self.amcl_pose is not None:
             self.pose_x = Vx = self.amcl_pose.pose.pose.position.x
             self.pose_y =Vy = self.amcl_pose.pose.pose.position.y
@@ -331,7 +332,6 @@ class BaseControl:
             self.pose_yaw = float(ctypes.c_int16(self.Yawz).value/100.0)
             self.pose_yaw = self.pose_yaw*math.pi/180.0
 
-            self.current_time = rospy.Time.now()
             dt = (self.current_time - self.previous_time).to_sec()
             self.previous_time = self.current_time
             self.pose_x = self.pose_x + Vx * (math.cos(self.pose_yaw))*dt - Vy * (math.sin(self.pose_yaw))*dt
