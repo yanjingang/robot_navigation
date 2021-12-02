@@ -25,6 +25,7 @@ import serial
 import string
 import traceback
 from geometry_msgs.msg import Twist
+from geometry_msgs.msg import PoseWithCovarianceStamped
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import BatteryState
 from sensor_msgs.msg import Imu
@@ -192,6 +193,8 @@ class BaseControl:
         self.sub = rospy.Subscriber("/debug", String, self.subDebug, queue_size=10)
         # 监听move_base发布给底盘的移动命令，并发送给底盘串口执行(注：tank底盘自己直接监听了rostopic，这里仅打印用)
         #self.sub = rospy.Subscriber(self.cmd_vel_topic, Twist, self.subCmd, queue_size=20)
+        # 监听amcl的预估位姿数据
+        self.sub_amcl = rospy.Subscriber("/amcl_pose", PoseWithCovarianceStamped, self.subAmclPose, queue_size=10)
         # 定频发布里程计数据
         self.pub = rospy.Publisher(self.odom_topic, Odometry, queue_size=10)    #里程计数据发布对象
         self.timer_odom = rospy.Timer(rospy.Duration(1.0/self.odom_freq), self.pubOdom)
@@ -245,6 +248,9 @@ class BaseControl:
             #rospy.loginfo("timerCommunication is Empty!")
             pass
 
+    # 监听amcl的预估位姿数据
+    def subAmclPose(self, data):
+        self.amcl_pose = data.pose
     
     # 监听move_base发布给底盘的vel_cmd移动命令，并发送给底盘串口(也可以底盘直接监听vel_cmd topic)  Subscribe vel_cmd call this to send vel cmd to move base
     def subCmd(self, data):
@@ -300,7 +306,7 @@ class BaseControl:
         except:
             rospy.logerr("Odom Command Send Faild! output: " + output)
         self.serialIDLE_flag = 0
-        """
+        
         # calculate odom data
         Vx = float(ctypes.c_int16(self.Vx).value/1000.0)
         Vy = float(ctypes.c_int16(self.Vy).value/1000.0)
@@ -312,13 +318,23 @@ class BaseControl:
         self.current_time = rospy.Time.now()
         dt = (self.current_time - self.previous_time).to_sec()
         self.previous_time = self.current_time
-        self.pose_x = self.pose_x + Vx * \
-            (math.cos(self.pose_yaw))*dt - Vy * (math.sin(self.pose_yaw))*dt
-        self.pose_y = self.pose_y + Vx * \
-            (math.sin(self.pose_yaw))*dt + Vy * (math.cos(self.pose_yaw))*dt
+        self.pose_x = self.pose_x + Vx * (math.cos(self.pose_yaw))*dt - Vy * (math.sin(self.pose_yaw))*dt
+        self.pose_y = self.pose_y + Vx * (math.sin(self.pose_yaw))*dt + Vy * (math.cos(self.pose_yaw))*dt
 
-        pose_quat = tf.transformations.quaternion_from_euler(
-            0, 0, self.pose_yaw)
+        pose_quat = tf.transformations.quaternion_from_euler(0, 0, self.pose_yaw)
+        """
+        # test
+        self.pose_x = Vx = self.amcl_pose.pose.pose.position.x
+        self.pose_y =Vy = self.amcl_pose.pose.pose.position.y
+        Vyaw = self.amcl_pose.pose.pose.position.z
+        pose_quat = [
+                        self.amcl_pose.msg.pose.pose.orientation.x,
+                        self.amcl_pose.msg.pose.pose.orientation.y,
+                        self.amcl_pose.msg.pose.pose.orientation.z,
+                        self.amcl_pose.msg.pose.pose.orientation.w
+                    ]
+
+        # pub
         msg = Odometry()
         msg.header.stamp = self.current_time
         msg.header.frame_id = self.odomId
