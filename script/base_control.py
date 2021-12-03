@@ -197,7 +197,7 @@ class BaseControl:
         # 监听move_base发布给底盘的移动命令，并发送给底盘串口执行(注：tank底盘自己直接监听了rostopic，这里仅打印用)
         #self.sub = rospy.Subscriber(self.cmd_vel_topic, Twist, self.subCmd, queue_size=20)
         # 监听amcl的预估位姿数据
-        self.sub_amcl = rospy.Subscriber("/amcl_pose", PoseWithCovarianceStamped, self.subAmclPose, queue_size=10)
+        #self.sub_amcl = rospy.Subscriber("/amcl_pose", PoseWithCovarianceStamped, self.subAmclPose, queue_size=10)
         # 定频发布里程计数据
         self.pub = rospy.Publisher(self.odom_topic, Odometry, queue_size=10)    #里程计数据发布对象
         self.timer_odom = rospy.Timer(rospy.Duration(1.0/self.odom_freq), self.pubOdom)
@@ -242,16 +242,22 @@ class BaseControl:
         self.Vy = 0
         self.Vyaw = 0
         self.Yawz = 0
-        if self.debug == '':
+        # 处理方向和速度信息
+        if self.debug == '' or len(self.debug.split(' ')) < 1:
             return
-        elif self.debug[0] == 'f':
-            self.Vx = 12        #收到一次f代表底盘前进了12cm
-        elif self.debug[0] == 'b':
-            self.Vx = -12
-        elif self.debug[0] == 'l':
-            self.Vyaw = -90     #收到一次l代表底盘左转了90度
-        elif self.debug[0] == 'r':
-            self.Vyaw = 90
+        direction_info = self.debug.split(' ')[0].split(':')
+        if len(direction_info)  < 2:
+            return
+        direction = direction_info[0]   # 方向
+        rate = float(direction_info[1]) # 线速度占比
+        if direction == 'f':
+            self.Vx = 12 * rate        #收到一次f代表底盘前进了12cm
+        elif direction == 'b':
+            self.Vx = -12 * rate
+        elif direction == 'l':
+            self.Vyaw = -90 * rate     #收到一次l代表底盘左转了90度
+        elif direction == 'r':
+            self.Vyaw = 90 * rate
 
     # 底盘数据监听（裸串口方式）
     def subSerial(self, event):
@@ -327,19 +333,6 @@ class BaseControl:
         self.serialIDLE_flag = 0
         """
         
-        # test
-        self.current_time = rospy.Time.now()
-        """if self.amcl_pose is not None:
-            self.pose_x = Vx = self.amcl_pose.pose.pose.position.x
-            self.pose_y = Vy = self.amcl_pose.pose.pose.position.y
-            Vyaw = self.amcl_pose.pose.pose.position.z
-            pose_quat = [
-                            self.amcl_pose.pose.pose.orientation.x,
-                            self.amcl_pose.pose.pose.orientation.y,
-                            self.amcl_pose.pose.pose.orientation.z,
-                            self.amcl_pose.pose.pose.orientation.w
-                        ]
-        else:"""
         # calculate odom data
         Vx = float(ctypes.c_int16(self.Vx).value/1000.0)
         Vy = float(ctypes.c_int16(self.Vy).value/1000.0)
