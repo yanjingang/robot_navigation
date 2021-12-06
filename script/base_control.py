@@ -242,7 +242,7 @@ class BaseControl:
         rospy.loginfo("sub /debug data: " + str(self.debug))
         self.Vx = 0     # x轴线速度 （V: velocity，单位时间内走过的距离，单位cm/s）
         self.Vy = 0     # y轴线速度
-        self.Vyaw = 0     # z轴转向角速度（单位时间内转过的弧度，单位rad/s“弧度/秒”）
+        self.Vyaw = 0     # z轴角速度（单位时间内转过的弧度，单位rad/s“弧度/秒”）
         self.Yawz = 0     # z轴角度？
         # 处理方向和速度信息
         if self.debug == '' or len(self.debug.split(' ')) < 1:
@@ -318,9 +318,9 @@ class BaseControl:
         msg.pose.pose.orientation.z = pose_quat[2]
         msg.pose.pose.orientation.w = pose_quat[3]
         # 速度信息
-        msg.twist.twist.linear.x = Vx
-        msg.twist.twist.linear.y = Vy
-        msg.twist.twist.angular.z = Vyaw
+        msg.twist.twist.linear.x = Vx       # x线速度
+        msg.twist.twist.linear.y = Vy       # y线速度
+        msg.twist.twist.angular.z = Vyaw    # z角速度
         # 发布odom
         self.pub.publish(msg)
         # 发布odom到base_link的tf变换
