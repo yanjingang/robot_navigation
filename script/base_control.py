@@ -291,7 +291,7 @@ class BaseControl:
 
         self.pose_yaw = float(ctypes.c_int16(self.Yawz).value/100.0)
         self.pose_yaw = self.pose_yaw*math.pi/180.0
-        rospy.loginfo("odom pose_yaw: " + str(self.pose_yaw))
+        #rospy.loginfo("odom pose_yaw: " + str(self.pose_yaw))
 
         # 计算dt：上次发布odom距今的秒差
         self.current_time = rospy.Time.now()
