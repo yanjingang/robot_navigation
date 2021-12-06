@@ -115,9 +115,19 @@ class BaseControl:
         # define param
         self.current_time = rospy.Time.now()
         self.previous_time = self.current_time
+        # 当前底盘定位信息（默认在地图原点，随底盘移动累计位置偏差）
         self.pose_x = 0.0
         self.pose_y = 0.0
         self.pose_yaw = 0.0
+        # 底盘当前移动线速度和角速度信息
+        self.Vx = 0     # x轴线速度 （V: velocity，单位时间内走过的距离，单位cm/s）
+        self.Vy = 0     # y轴线速度
+        self.Vyaw = 0     # z轴转向角速度（单位时间内转过的弧度，单位rad/s“弧度/秒”）
+        self.Yawz = 0     # z轴角度？
+        # test amcl pose
+        self.amcl_pose = None
+        self.debug =""
+        # 
         self.serialIDLE_flag = 0
         self.trans_x = 0.0
         self.trans_y = 0.0
@@ -132,14 +142,6 @@ class BaseControl:
         self.BatteryTimeCounter = 0
         # 底盘裸串口通信的数据积累队列（串口数据需要拼接）
         self.Circleloop = queue(capacity=1024*4)
-        # test amcl pose
-        self.amcl_pose = None
-        self.debug =""
-        # 定位信息
-        self.Vx = 0
-        self.Vy = 0
-        self.Vyaw = 0
-        self.Yawz = 0
         # 电量默认值
         self.Vvoltage = 1000
         self.Icurrent = 1000 
@@ -190,7 +192,7 @@ class BaseControl:
             self.sub = rospy.Subscriber(self.ackermann_cmd_topic, AckermannDriveStamped, self.ackermannCmdCB, queue_size=20)
         else:
         """
-        
+        # odom到base_link的变换
         self.tf_broadcaster = tf.TransformBroadcaster()
         # test rospy sub
         self.sub = rospy.Subscriber("/debug", String, self.subDebug, queue_size=10)
@@ -238,10 +240,10 @@ class BaseControl:
     def subDebug(self, data):
         self.debug = data.data
         rospy.loginfo("sub /debug data: " + str(self.debug))
-        self.Vx = 0
-        self.Vy = 0
-        self.Vyaw = 0
-        self.Yawz = 0
+        self.Vx = 0     # x轴线速度 （V: velocity，单位时间内走过的距离，单位cm/s）
+        self.Vy = 0     # y轴线速度
+        self.Vyaw = 0     # z轴转向角速度（单位时间内转过的弧度，单位rad/s“弧度/秒”）
+        self.Yawz = 0     # z轴角度？
         # 处理方向和速度信息
         if self.debug == '' or len(self.debug.split(' ')) < 1:
             return
@@ -251,13 +253,79 @@ class BaseControl:
         direction = direction_info[0]   # 方向
         rate = float(direction_info[1]) # 线速度占比
         if direction == 'f':
-            self.Vx = 12 * rate        #收到一次f代表底盘前进了12cm
+            self.Vx = 12 * rate        # f代表底盘当前执行前进12cm/s
         elif direction == 'b':
-            self.Vx = -12 * rate
+            self.Vx = -12 * rate       # 后退-12cm/s
         elif direction == 'l':
-            self.Vyaw = -90 * rate     #收到一次l代表底盘左转了90度
+            self.Vyaw = -45 * rate     # l代表底盘当前执行左转90度/s
         elif direction == 'r':
-            self.Vyaw = 90 * rate
+            self.Vyaw = 45 * rate      # 右转90度/s
+
+
+    # 定频获取速度和imu信息，转换后发布里程计数据 Odom Timer call this to get velocity and imu info and convert to odom topic
+    def pubOdom(self, event):
+        """
+        # Get move base velocity data
+        if self.movebase_firmware_version[1] == 0:
+            # old version firmware have no version info and not support new command below
+            output = chr(0x5a) + chr(0x06) + chr(0x01) + chr(0x09) + chr(0x00) + chr(0x38)  # 0x38 is CRC-8 value
+        else:
+            # in firmware version new than v1.1.0,support this command
+            output = chr(0x5a) + chr(0x06) + chr(0x01) + chr(0x11) + chr(0x00) + chr(0xa2)
+        while(self.serialIDLE_flag):
+            time.sleep(0.01)
+        self.serialIDLE_flag = 1
+        try:
+            while self.serial.out_waiting:
+                pass
+            self.serial.write(output)
+        except:
+            rospy.logerr("Odom Command Send Faild! output: " + output)
+        self.serialIDLE_flag = 0
+        """
+        
+        # calculate odom data
+        Vx = float(ctypes.c_int16(self.Vx).value/1000.0)
+        Vy = float(ctypes.c_int16(self.Vy).value/1000.0)
+        Vyaw = float(ctypes.c_int16(self.Vyaw).value/1000.0)
+
+        self.pose_yaw = float(ctypes.c_int16(self.Yawz).value/100.0)
+        self.pose_yaw = self.pose_yaw*math.pi/180.0
+        rospy.loginfo("odom pose_yaw: " + str(self.pose_yaw))
+
+        # 计算dt：上次发布odom距今的秒差
+        self.current_time = rospy.Time.now()
+        dt = (self.current_time - self.previous_time).to_sec() 
+        self.previous_time = self.current_time
+        # 根据时间*速度，计算累计偏差后的当前定位
+        self.pose_x = self.pose_x + Vx * (math.cos(self.pose_yaw))*dt - Vy * (math.sin(self.pose_yaw))*dt
+        self.pose_y = self.pose_y + Vx * (math.sin(self.pose_yaw))*dt + Vy * (math.cos(self.pose_yaw))*dt
+        # 方向四元组，通过yaw转换获得
+        pose_quat = tf.transformations.quaternion_from_euler(0, 0, self.pose_yaw)
+        
+
+        # pub
+        msg = Odometry()
+        msg.header.stamp = self.current_time
+        msg.header.frame_id = self.odomId
+        msg.child_frame_id = self.baseId
+        # odom定位信息
+        msg.pose.pose.position.x = self.pose_x
+        msg.pose.pose.position.y = self.pose_y
+        msg.pose.pose.position.z = 0
+        msg.pose.pose.orientation.x = pose_quat[0]
+        msg.pose.pose.orientation.y = pose_quat[1]
+        msg.pose.pose.orientation.z = pose_quat[2]
+        msg.pose.pose.orientation.w = pose_quat[3]
+        # 速度信息
+        msg.twist.twist.linear.x = Vx
+        msg.twist.twist.linear.y = Vy
+        msg.twist.twist.angular.z = Vyaw
+        # 发布odom
+        self.pub.publish(msg)
+        # 发布odom到base_link的tf变换
+        self.tf_broadcaster.sendTransform((self.pose_x, self.pose_y, 0.0), pose_quat, self.current_time, self.baseId, self.odomId)
+        #rospy.loginfo("pub /odom data: " + str(msg))
 
     # 底盘数据监听（裸串口方式）
     def subSerial(self, event):
@@ -310,64 +378,6 @@ class BaseControl:
             rospy.logerr("Vel_cmd Command Send Faild! output: " + output)
         self.serialIDLE_flag = 0
         """
-
-    # 定频获取速度和imu信息，转换后发布里程计数据 Odom Timer call this to get velocity and imu info and convert to odom topic
-    def pubOdom(self, event):
-        """
-        # Get move base velocity data
-        if self.movebase_firmware_version[1] == 0:
-            # old version firmware have no version info and not support new command below
-            output = chr(0x5a) + chr(0x06) + chr(0x01) + chr(0x09) + chr(0x00) + chr(0x38)  # 0x38 is CRC-8 value
-        else:
-            # in firmware version new than v1.1.0,support this command
-            output = chr(0x5a) + chr(0x06) + chr(0x01) + chr(0x11) + chr(0x00) + chr(0xa2)
-        while(self.serialIDLE_flag):
-            time.sleep(0.01)
-        self.serialIDLE_flag = 1
-        try:
-            while self.serial.out_waiting:
-                pass
-            self.serial.write(output)
-        except:
-            rospy.logerr("Odom Command Send Faild! output: " + output)
-        self.serialIDLE_flag = 0
-        """
-        
-        # calculate odom data
-        Vx = float(ctypes.c_int16(self.Vx).value/1000.0)
-        Vy = float(ctypes.c_int16(self.Vy).value/1000.0)
-        Vyaw = float(ctypes.c_int16(self.Vyaw).value/1000.0)
-
-        self.pose_yaw = float(ctypes.c_int16(self.Yawz).value/100.0)
-        self.pose_yaw = self.pose_yaw*math.pi/180.0
-
-        self.current_time = rospy.Time.now()
-        dt = (self.current_time - self.previous_time).to_sec()
-        self.previous_time = self.current_time
-        self.pose_x = self.pose_x + Vx * (math.cos(self.pose_yaw))*dt - Vy * (math.sin(self.pose_yaw))*dt
-        self.pose_y = self.pose_y + Vx * (math.sin(self.pose_yaw))*dt + Vy * (math.cos(self.pose_yaw))*dt
-
-        pose_quat = tf.transformations.quaternion_from_euler(0, 0, self.pose_yaw)
-        
-
-        # pub
-        msg = Odometry()
-        msg.header.stamp = self.current_time
-        msg.header.frame_id = self.odomId
-        msg.child_frame_id = self.baseId
-        msg.pose.pose.position.x = self.pose_x
-        msg.pose.pose.position.y = self.pose_y
-        msg.pose.pose.position.z = 0
-        msg.pose.pose.orientation.x = pose_quat[0]
-        msg.pose.pose.orientation.y = pose_quat[1]
-        msg.pose.pose.orientation.z = pose_quat[2]
-        msg.pose.pose.orientation.w = pose_quat[3]
-        msg.twist.twist.linear.x = Vx
-        msg.twist.twist.linear.y = Vy
-        msg.twist.twist.angular.z = Vyaw
-        self.pub.publish(msg)
-        self.tf_broadcaster.sendTransform((self.pose_x, self.pose_y, 0.0), pose_quat, self.current_time, self.baseId, self.odomId)
-        #rospy.loginfo("pub /odom data: " + str(msg))
 
     # 定频发布电量数据 Battery Timer callback function to get battery info
     def pubBattery(self, event):
