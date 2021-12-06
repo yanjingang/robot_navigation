@@ -253,13 +253,13 @@ class BaseControl:
         direction = direction_info[0]   # 方向
         rate = float(direction_info[1]) # 线速度占比
         if direction == 'f':
-            self.Vx = 12 * rate        # f代表底盘当前执行前进12cm/s
+            self.Vx = round(12 * rate)        # f代表底盘当前执行前进12cm/s
         elif direction == 'b':
-            self.Vx = -12 * rate       # 后退-12cm/s
+            self.Vx = round(-12 * rate)       # 后退-12cm/s
         elif direction == 'l':
-            self.Vyaw = -45 * rate     # l代表底盘当前执行左转90度/s
+            self.Vyaw = round(-45 * rate)     # l代表底盘当前执行左转90度/s
         elif direction == 'r':
-            self.Vyaw = 45 * rate      # 右转90度/s
+            self.Vyaw = round(45 * rate)      # 右转90度/s
 
 
     # 定频获取速度和imu信息，转换后发布里程计数据 Odom Timer call this to get velocity and imu info and convert to odom topic
