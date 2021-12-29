@@ -3,7 +3,7 @@
 
 # ROS1
 source /opt/ros/noetic/setup.bash
-source /home/ubuntu/catkin_ws/devel/setup.bash
+source /home/work/catkin_ws/devel/setup.bash
 
 export ROS_IP=`hostname -I | awk '{print $1}'`
 export ROS_HOSTNAME=`hostname -I | awk '{print $1}'`
