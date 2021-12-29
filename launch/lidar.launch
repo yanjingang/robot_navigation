@@ -10,6 +10,11 @@
         <arg name="lidar_frame"            value="$(arg lidar_frame)"/>
     </include>
 
+    <group if="$(eval base_type == 'MarsRobot')">
+        <node pkg="tf" type="static_transform_publisher" name="base_footprint_to_laser"
+            args="0.0 0.0 0.0 0.0 0.0 0.0 $(arg base_frame) $(arg lidar_frame) 20">
+        </node>
+    </group>
     <group if="$(eval base_type == 'NanoRobot')">
         <node pkg="tf" type="static_transform_publisher" name="base_footprint_to_laser"
             args="-0.01225 0.0 0.18 3.14159265 0.0 0.0 $(arg base_frame) $(arg lidar_frame) 20">
