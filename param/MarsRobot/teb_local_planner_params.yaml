@@ -12,19 +12,19 @@ TebLocalPlannerROS:
  feasibility_check_no_poses: 2
     
  # 机器人 Robot   （最大最小速度,y轴的横向运动速度,转向角度,加速度信息,到达目标所能容忍的误差等）
- max_vel_x: 0.2 # 
+ max_vel_x: 0.2   # X 方向最大速度
  max_vel_x_backwards: 0.2
- max_vel_y: 0.0
- max_vel_theta: 1.0 # the angular velocity is also bounded by min_turning_radius in case of a carlike robot (r = v / omega)
- acc_lim_x: 0.5
- acc_lim_theta: 0.5
+ max_vel_y: 0.0   # 差速轮驱动无法左右平移，所以Y方向速度为0。像麦克纳姆轮多个轮，可以有y方向的线速度
+ max_vel_theta: 1.0 # 最大角速度，单位rad/s。这个值不要设置太高。默认1.0rad/s。the angular velocity is also bounded by min_turning_radius in case of a carlike robot (r = v / omega)
+ acc_lim_x: 0.5     # x方向的最大线速度的加速度，单位m/s2
+ acc_lim_theta: 0.5 # 角速度加速度限值
  min_turning_radius: 0.0 # 最小转弯半径，差速驱动机器人可在原地转弯 diff-drive robot (can turn on place!)
  footprint_model: # types: "point", "circular", "two_circles", "line", "polygon"
    type: "point"
 
- # GoalTolerance
- xy_goal_tolerance: 0.1
- yaw_goal_tolerance: 0.2
+ # 目标公差 GoalTolerance
+ xy_goal_tolerance: 0.1   # 允许机器人所到目标的坐标（以米为单位）偏差，该值过小可能导致机器人在目标位置附近不断调整到精确的目标位置。默认为0.1。
+ yaw_goal_tolerance: 0.2  # 允许机器人缩到目标的方向（弧度）偏差，该值设置小可能导致机器人接近目标振荡。默认为0.1。
  free_goal_vel: False
     
  # 障碍物 Obstacles

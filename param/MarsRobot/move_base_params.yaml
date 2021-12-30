@@ -1,5 +1,5 @@
 # 对底盘的控制频率
-controller_frequency: 2.0
+controller_frequency: 2.0   # 更新规划的频率
 controller_patience: 15.0
 
 # 路径规划频率
