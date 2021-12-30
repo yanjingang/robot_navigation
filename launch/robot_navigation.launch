@@ -7,20 +7,20 @@
   <arg name="use_dijkstra" default= "true"/> 
 
   <group if="$(arg simulation)">
-    <!-- simulation robot with lidar and map-->
+    <!-- simulation robot with lidar and map 仿真-->
     <include file="$(find robot_simulation)/launch/simulation_one_robot_with_map.launch"/>
   </group>
 
   <group unless="$(arg simulation)">
-    <!-- robot with lidar -->
+    <!-- robot with lidar 雷达和底盘 -->
     <include file="$(find robot_navigation)/launch/robot_lidar.launch">
           <!--<arg name="robot_name"            value="$(arg robot_name)"/>-->
     </include>
-    <!-- Map server -->
+    <!-- Map server 地图 -->
     <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)">
       <param name="frame_id" value="map"/>
     </node>
-    <!-- AMCL -->
+    <!-- AMCL 定位 -->
     <node pkg="amcl" type="amcl" name="amcl" output="screen">
       <rosparam file="$(find robot_navigation)/param/$(env BASE_TYPE)/amcl_params.yaml" command="load" />
       <param name="initial_pose_x"            value="0.0"/>
@@ -29,7 +29,7 @@
     </node>
   </group>
 
-  <!-- move_base -->
+  <!-- move_base 导航-->
   <include file="$(find robot_navigation)/launch/move_base.launch" >
     <arg name="planner"            value="$(arg planner)"/>
     <arg name="simulation"            value="$(arg simulation)"/>

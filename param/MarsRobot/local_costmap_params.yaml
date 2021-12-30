@@ -1,13 +1,13 @@
 local_costmap:
-  global_frame: map
-  robot_base_frame: base_footprint
-  update_frequency: 5.0
-  publish_frequency: 5.0
+  global_frame: map         # 基础坐标
+  robot_base_frame: base_footprint  # 底盘坐标
+  update_frequency: 5.0     # 更新频率
+  publish_frequency: 5.0    # 发布频率
   rolling_window: true
-  width: 3
+  width: 3                  # 以机器人所在位置为中心的 3*3 滑动窗口（这个框设置得越小路径规划效果越差,越大机器人负担的运算就越大）
   height: 3
   resolution: 0.05
   transform_tolerance: 0.5
-  plugins:
-   - {name: static_layer,        type: "costmap_2d::StaticLayer"}
-   - {name: obstacle_layer,      type: "costmap_2d::ObstacleLayer"}
+  plugins:  # 设置一个地图的层
+   - {name: static_layer,        type: "costmap_2d::StaticLayer"}   #静态层,建图时的黑色边界以外的灰色可通行区域
+   - {name: obstacle_layer,      type: "costmap_2d::ObstacleLayer"} #障碍物层,地图中不存在但是实际扫到的障碍物会被识别在障碍物层
