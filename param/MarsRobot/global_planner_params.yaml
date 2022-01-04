@@ -1,14 +1,16 @@
+# 全局路径规划器
 GlobalPlanner:
-  allow_unknown: true
-  default_tolerance: 0.2
-  use_grid_path: false
-  use_quadratic: false
-  old_navfn_behavior: false
-  lethal_cost: 253
-  neutral_cost: 50
-  cost_factor: 3
-  publish_potential: true
-  orientation_mode: 0
-  orientation_window_size: 1
+  allow_unknown: true     # 是否选择探索未知区域。如果和costmap配合使用的时候，其对应参数track_unknown_space必须同样设置为true
+  default_tolerance: 0.2  # 靠近目标点的周围多少数值就算到了目标点
+  use_grid_path: false    # 输出路径是否遵循网格边界，否则就使用梯度下降法
+  use_quadratic: false    # 是否使用二阶近似
+  old_navfn_behavior: false # 如果你想要让global_planner跟之前的navfn版本效果一样，就设true
+  lethal_cost: 253        # 障碍物致命区域的代价数值（dynamic reconfigure, 可以动态参数配置）
+  neutral_cost: 50        # 中立区域的cost值（动态配置）
+  cost_factor: 3          # cost因子，用于将每层costmap对应的cost数值乘起来（动态配置）
+  publish_potential: true # 发布可能的代价地图（动态配置）
+  orientation_mode: 3 #0     # 设置每个点的朝向。 (None=0, Forward向前=1, Interpolate插值=2, ForwardThenInterpolate向前然后插值=3, Backward向后=4, Leftward向左=5, Rightward向右=6)(动态配置)
+  orientation_window_size: 1 # 根据方向模式(参数orientation_mode)指定的位置导数，确定使用哪个窗口来确定方向(动态配置)
   outline_map: true
-  visualize_potential: false
+  visualize_potential: false # 可能区域是否可视化
+  use_dijkstra: true         # 如果设置为false就用A*

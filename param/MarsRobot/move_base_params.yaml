@@ -7,11 +7,11 @@ planner_frequency: 0.2
 planner_patience: 5.0
 
 # 保守重置距离
-conservative_reset_dist: 3.0
+conservative_reset_dist: 3.0 # 清理costmap的范围，单位为m
 
 # 震荡
 oscillation_timeout: 10.0   # 在一个点持续震荡时最大允许震荡时间
-oscillation_distance: 0.2   # 震荡距离
+oscillation_distance: 0.2   # 配合timeout的含义就是，10s内超过0.2m范围内的运动才不算陷入局部震荡
 
 # 允许清除旋转（当机器人被困住时会原地 360 度转一圈重新扫描找到一条出路）
 clearing_rotation_allowed: false 
