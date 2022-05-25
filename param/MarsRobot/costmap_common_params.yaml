@@ -1,7 +1,7 @@
 # move_base 在全局路径规划与本地路径规划时调用的通用参数
 
 # 机器人的矩形轮廓尺寸（表示以机器人中心为坐标轴原点,这四个坐标点分别对应机器人的四个角。路径规划器获取到机器人轮廓大小从而规划相应的路径）
-robot_radius: 0.13  # 圆形半径
+robot_radius: 0.15  # 圆形半径
 #footprint: [[-0.09, -0.1], [0.04, -0.1], [0.04, 0.1], [-0.09, 0.1]]  # 矩形
 
 transform_tolerance: 0.2
@@ -10,7 +10,7 @@ obstacle_layer:
  enabled: true
  obstacle_range: 2.5  # 用于障碍物探测，比如: 值为 3.0，意味着检测到距离小于 3 米的障碍物时，就会引入代价地图
  raytrace_range: 3.0  # 用于清除障碍物，比如：值为 3.5，意味着清除代价地图中 3.5 米以外的障碍物
- inflation_radius: 0.05   # 膨胀半径，扩展在碰撞区域以外的代价区域，使得机器人规划路径避开障碍物
+ inflation_radius: 0.1   # 膨胀半径，扩展在碰撞区域以外的代价区域，使得机器人规划路径避开障碍物
  track_unknown_space: false
  combination_method: 1
  
