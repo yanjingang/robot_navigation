@@ -7,10 +7,13 @@
     <!--include file="$(find robot_navigation)/launch/base_control.launch">
         <arg name="pub_imu"            value="$(arg pub_imu)"/>
     </include-->
+
+    <!-- 底盘 base_control -->
     <node name="arduino" pkg="ros_arduino_python" type="arduino_node.py" output="screen">
       <rosparam file="$(find ros_arduino_python)/config/my_arduino_params.yaml" command="load" />
    </node>
 
+    <!-- 雷达 rplidar -->
     <include file="$(find robot_navigation)/launch/lidar.launch">
         <arg name="lidar_frame"            value="$(arg lidar_frame)"/>  
     </include>

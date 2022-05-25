@@ -1,27 +1,27 @@
 # 局部轨迹规划器: dwa
 DWAPlannerROS:
 
-# Robot Configuration Parameters
-  max_vel_x: 0.25
-  min_vel_x: -0.25
+# 机器人 Robot
+  max_vel_x: 0.25   # X 方向最大速度
+  min_vel_x: -0.25  # X 方向最小速度
 
-  max_vel_y: 0.0
+  max_vel_y: 0.0   # 差速轮驱动无法左右平移，所以Y方向速度为0。像麦克纳姆轮多个轮，可以有y方向的线速度
   min_vel_y: 0.0
 
-# The velocity when robot is moving in a straight line
+# 机器人直线运动时的速度 The velocity when robot is moving in a straight line
   max_vel_trans:  0.26
   min_vel_trans:  0.13
 
   max_vel_theta: 1.0
   min_vel_theta: 0.5
 
-  acc_lim_x: 2.5
+  acc_lim_x: 2.5    # x方向的最大线速度的加速度，单位m/s
   acc_lim_y: 0.0
-  acc_lim_theta: 3.2 
+  acc_lim_theta: 3.2  # 角速度加速度限值
 
-# Goal Tolerance Parametes
-  xy_goal_tolerance: 0.1
-  yaw_goal_tolerance: 0.1
+# 目标公差 Goal Tolerance Parametes
+  xy_goal_tolerance: 0.1    # 允许机器人所到目标的坐标（以米为单位）偏差，该值过小可能导致机器人在目标位置附近不断调整到精确的目标位置。默认为0.1。
+  yaw_goal_tolerance: 0.1   # 允许机器人缩到目标的方向（弧度）偏差，该值设置小可能导致机器人接近目标振荡。默认为0.1。
   latch_xy_goal_tolerance: false
 
 # Forward Simulation Parameters

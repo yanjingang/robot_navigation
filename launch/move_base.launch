@@ -10,7 +10,7 @@
   <arg name="base_type" default= "$(env BASE_TYPE)"/> 
   <arg name="move_forward_only" default="false"/>
 
-  <!-- move_base use DWA planner-->
+  <!-- move_base 导航 use DWA planner-->
   <group if="$(eval planner == 'dwa')">
     <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
       <!-- use global_planner replace default navfn as global planner ,global_planner support A* and dijkstra algorithm-->
@@ -30,7 +30,8 @@
       <param name="GlobalPlanner/use_dijkstra " value="$(arg use_dijkstra)" />    
     </node>
   </group>
-  <!-- move_base use TEB planner-->
+  
+  <!-- move_base 导航 use TEB planner-->
   <group if="$(eval planner == 'teb')">
     <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
       <!-- use global_planner replace default navfn as global planner ,global_planner support A* and dijkstra algorithm-->

@@ -7,7 +7,7 @@
 
   <param name="/use_sim_time" value="$(arg simulation)" />  
 
-  <!-- simulation robot with lidar and map-->
+  <!-- 仿真 simulation robot with lidar and map-->
   <group if="$(arg simulation)">
     <include file="$(find robot_simulation)/launch/simulation_one_robot.launch"/>
   </group>
@@ -17,11 +17,12 @@
     <include file="$(find robot_navigation)/launch/robot_lidar.launch"/>
   </group>
 
-  <!-- SLAM: Gmapping, Cartographer, Hector, Karto -->
+  <!-- SLAM 建图: Gmapping, Cartographer, Hector, Karto -->
   <include file="$(find robot_navigation)/launch/includes/$(arg slam_methods).launch">
     <arg name="simulation"            value="$(arg simulation)"/>
   </include>
-  <!-- move_base -->
+  
+  <!-- move_base 导航 -->
   <group unless="$(eval planner == '')">
     <include file="$(find robot_navigation)/launch/move_base.launch" unless="$(eval planner == '')">
         <arg name="planner"            value="$(arg planner)"/>
