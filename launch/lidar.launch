@@ -11,9 +11,10 @@
     </include>
 
     <group if="$(eval base_type == 'MarsRobot')">
-	    <!-- 激光雷达相比与底盘，高0.15m，z轴旋转180度 -->
+	    <!-- 激光雷达相比与底盘，高7.7m，yaw right偏航180度, roll翻滚180度 -->
         <node pkg="tf" type="static_transform_publisher" name="base_footprint_to_laser"
-            args="0.0 0.0 0.15 3.14159265 0.0 0.0 $(arg base_frame) $(arg lidar_frame) 20">
+            args="0.0 0.0 0.077 3.14159265 0.0 3.14159265 $(arg base_frame) $(arg lidar_frame) 20">
+            <!-- args="x y z yaw pitch roll frame_id child_frame_id period_in_ms"-->
         </node>
     </group>
     <group if="$(eval base_type == 'NanoRobot')">
