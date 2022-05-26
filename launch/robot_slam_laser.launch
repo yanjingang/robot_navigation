@@ -1,6 +1,6 @@
 <launch>
   <!-- Arguments -->
-  <arg name="slam_methods" default="hector" doc="slam type [gmapping, hector, karto, cartographer]"/>
+  <arg name="slam_methods" default="cartographer" doc="slam type [gmapping, hector, karto, cartographer]"/>
   <arg name="open_rviz" default="false"/>
   <arg name="simulation" default= "false"/> 
   <arg name="planner"  default="teb" doc="opt: dwa, teb"/> 
