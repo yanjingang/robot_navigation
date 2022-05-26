@@ -3,7 +3,7 @@
   <arg name="slam_methods" default="hector" doc="slam type [gmapping, hector, karto, cartographer]"/>
   <arg name="open_rviz" default="false"/>
   <arg name="simulation" default= "false"/> 
-  <arg name="planner"  default="" doc="opt: dwa, teb"/> 
+  <arg name="planner"  default="teb" doc="opt: dwa, teb"/> 
 
   <param name="/use_sim_time" value="$(arg simulation)" />  
 
