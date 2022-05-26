@@ -23,7 +23,7 @@ TebLocalPlannerROS:
  footprint_model: # 主要是碰撞检测中的距离计算 types: "point", "circular", "two_circles", "line", "polygon"
    #type: "point"        # 机器人模型为点模型，这种模型消耗资源最小
    type: "circular"      # 机器人模型为圆形
-   radius: 0.15          # 圆半径
+   radius: 0.13          # 圆半径
 
 
  # 目标公差 GoalTolerance
