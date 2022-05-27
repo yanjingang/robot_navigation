@@ -2,7 +2,7 @@
   <!-- Arguments -->
   <arg name="map_file" default="$(find robot_navigation)/maps/map.yaml"/>
   <arg name="simulation" default= "false"/> 
-  <arg name="planner"  default="teb" doc="opt: dwa, teb"/> 
+  <arg name="planner"  default="dwa" doc="opt: dwa, teb"/> 
   <arg name="open_rviz" default="false"/>
   <arg name="use_dijkstra" default= "true"/> 
 

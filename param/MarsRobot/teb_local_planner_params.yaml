@@ -8,7 +8,7 @@ TebLocalPlannerROS:
  dt_ref: 0.3           # 决定轨迹的分辨率，不能太大(> 0.6)，否则动力学约束乱套了
  dt_hysteresis: 0.1
  global_plan_overwrite_orientation: True  # 覆盖全局路径规划每个pose的朝向，使朝向总是指向下一个pose
- allow_init_with_backwards_motion: True   # 允许带向后运动的初始运动
+ allow_init_with_backwards_motion: False   # 允许带向后运动的初始运动
  max_global_plan_lookahead_dist: 3.0      # 临时终点，最大也不超过local_costmap的边界
  feasibility_check_no_poses: 2
     
@@ -23,7 +23,7 @@ TebLocalPlannerROS:
  footprint_model: # 主要是碰撞检测中的距离计算 types: "point", "circular", "two_circles", "line", "polygon"
    #type: "point"        # 机器人模型为点模型，这种模型消耗资源最小
    type: "circular"      # 机器人模型为圆形
-   radius: 0.13          # 圆半径
+   radius: 0.17          # 圆半径
 
 
  # 目标公差 GoalTolerance
